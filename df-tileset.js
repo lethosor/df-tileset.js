@@ -9,8 +9,11 @@ window.Tileset = (function($){
 			height: self.image.height(),
 			width: self.image.width()
 		});
+		var ctx = self.image_context = self.image_canvas[0].getContext('2d');
 		// Draw image onto image_canvas
-		self.image_canvas[0].getContext('2d').drawImage(self.image[0], 0, 0, self.image.width(), self.image.height());
+		ctx.drawImage(self.image[0], 0, 0, self.image.width(), self.image.height());
+		
+		var background = ctx.g;
 		
 		if (this instanceof Tileset.Font) $.extend(this, self);
 		return self;

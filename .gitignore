@@ -1,0 +1,2 @@
+# Tilesets - these should be provided by implementations, *not* loaded (due to CORS issues)
+*.png
