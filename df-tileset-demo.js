@@ -7,7 +7,7 @@ Demo.init = function(){
 		'border-radius': 2,
 		'margin-top': '5em',
 		'font-family': 'Courier, monospace',
-		height: '10em',
+		height: '15em',
 		'overflow-y': 'scroll',
 		'white-space': 'pre'
 	}).appendTo('body').html('<div></div>');
@@ -27,5 +27,16 @@ $(function(){
 		Demo.log('Loaded in ' + ((new Date()).getTime() - d) + ' ms.\nFont:',
 				 font.characters.length, 'characters, background:',
 				 'rgba(' + font.characters[0].pixels[0][0].toString() + ')');
+		var ch = Math.floor(Math.random()*256);
+		Demo.log('Character', ch + ':');
+		var cp = font.characters[ch].pixels;
+		for (var r = 0; r < cp.length; r++) {
+			var s = '';
+			for (var c = 0; c < cp[r].length; c++) {
+				var color = 'rgba(' + cp[r][c].toString() + ')'
+				s += '<span style="background-color:'+color+'"> </span>'
+			}
+			Demo.log(s);
+		}
 	});
 });
