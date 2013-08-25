@@ -1,3 +1,5 @@
 $(function(){
-	font = Tileset.Font('#tileset');
+	$('#tileset').load(function(){
+		font = Tileset.Font('#tileset');
+	});
 });
