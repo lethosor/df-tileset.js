@@ -142,8 +142,13 @@ window.Tileset = (function($){
 		};
 		
 		self.parse_string = function(s) {
-			return s.replace(/@{(\d+)}/g, function(match, num){
-				return Tileset.CP437[num];
+			return s.replace(/#\{([\d,|/]+)\}/g, function(match, nums){
+				nums = nums.split(/,|\||\//);
+				var s = '';
+				for (var i = 0; i < nums.length; i++) {
+					s += Tileset.CP437[nums[i]];
+				}
+				return s;
 			});
 		};
 		
