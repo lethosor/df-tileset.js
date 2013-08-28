@@ -122,6 +122,31 @@ window.Tileset = (function($){
 			}
 		};
 		
+		self.draw_string = function(string, r, c, fg, bg) {
+			if (!bg) {
+				bg = [0, 0, 0];
+			}
+			if (!fg) {
+				fg = [255, 255, 255];
+			}
+			string = self.parse_string(string);
+			var chars = [];
+			for (var i = 0; i < string.length; i++) {
+				chars.push(Tileset.CP437_R[string[i]]);
+			}
+			self.draw_list_at(chars, fg, bg, r, c);
+		};
+		
+		self.draw_char = function(ch, r, c, fg, bg) {
+			self.draw_string(self.parse_string(ch[0]), r, c, fg, bg);
+		};
+		
+		self.parse_string = function(s) {
+			return s.replace(/@{(\d+)}/g, function(match, num){
+				return Tileset.CP437[num];
+			});
+		};
+		
 		if (this instanceof Tileset.Canvas) $.extend(this, self);
 		return self;
 	};
