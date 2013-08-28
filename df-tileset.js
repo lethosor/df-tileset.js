@@ -123,12 +123,7 @@ window.Tileset = (function($){
 		};
 		
 		self.draw_string = function(string, r, c, fg, bg) {
-			if (!bg) {
-				bg = [0, 0, 0];
-			}
-			if (!fg) {
-				fg = [255, 255, 255];
-			}
+			fg = self.get_fg(fg); bg = self.get_bg(bg);
 			string = self.parse_string(string);
 			var chars = [];
 			for (var i = 0; i < string.length; i++) {
@@ -141,6 +136,10 @@ window.Tileset = (function($){
 			self.draw_string(self.parse_string(ch[0]), r, c, fg, bg);
 		};
 		
+		self.fill_char = function(ch, coords, fg, bg) {
+			
+		};
+		
 		self.parse_string = function(s) {
 			return s.replace(/#\{([\d,|/]+)\}/g, function(match, nums){
 				nums = nums.split(/,|\||\//);
@@ -150,6 +149,14 @@ window.Tileset = (function($){
 				}
 				return s;
 			});
+		};
+		
+		self.get_fg = function(c) {
+			return $.extend([255, 255, 255], c);
+		};
+		
+		self.get_bg = function(c) {
+			return $.extend([0, 0, 0], c);
 		};
 		
 		if (this instanceof Tileset.Canvas) $.extend(this, self);
