@@ -138,7 +138,21 @@ window.Tileset = (function($){
 		
 		self.fill_char = function(ch, coords, fg, bg) {
 			fg = self.get_fg(fg); bg = self.get_bg(bg);
-			
+			if (typeof ch == 'string') {
+				ch = Tileset.CP437_R[self.parse_string(ch)[0]];
+			}
+			// Collapse coordinates and make sure we have 4 numbers
+			coords = coords.toString().split(',').slice(0, 4).map(Number).map(function(x){
+				return isNaN(x) ? 'NaN' : x;
+			});
+			if (coords.length != 4 || coords.indexOf('NaN') >= 0) {
+				throw TypeError('Invalid coordinates');
+			}
+			for (var r = coords[0]; r <= coords[2]; r++) {
+				for (var c = coords[1]; c <= coords[3]; c++) {
+					self.draw_at(ch, fg, bg, r, c);
+				}
+			}
 		};
 		
 		self.parse_string = function(s) {
