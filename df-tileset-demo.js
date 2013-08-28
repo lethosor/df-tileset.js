@@ -44,7 +44,7 @@ $(function(){
 			width: $('body').width(),
 			height: $('body').height() / 2
 			});
-		canvas = Tileset.Canvas(canvas, font);
+		Demo.canvas = canvas = Tileset.Canvas(canvas, font);
 		Demo.log('Multiple color/caching demo (5 times)')
 		ch = Math.floor(Math.random() * 256);
 		Demo.log('Using character', ch);
