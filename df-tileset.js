@@ -80,8 +80,8 @@ window.Tileset = (function($){
 		self.characters = [];
 		
 		var background = ctx.getImageData(0, 0, 1, 1).data;
-		var w = self.image_width / 16,
-			h = self.image_height / 16;
+		var w = self.char_width = self.image_width / 16,
+			h = self.char_height = self.image_height / 16;
 		for (var row = 0; row < 16; row++) {
 			for (var col = 0; col < 16; col++) {
 				var data = ctx.getImageData(w * col, h * row, w, h);
@@ -105,6 +105,20 @@ window.Tileset = (function($){
 		});
 		return event;
 	};
+	
+	Tileset.Canvas = function(canvas, font) {
+		var self = {canvas: $(canvas)[0], $canvas: $(canvas), font: font};
+		canvas = self.canvas;
+		var cx = self.cx = self.canvas.getContext('2d')
+		
+		self.draw_at = function(ch_id, fg, bg, r, c){
+			var d = font.characters[ch_id].image_data(fg, bg);
+			self.cx.putImageData(d, c * self.font.char_width, r * self.font.char_height);
+		};
+		
+		if (this instanceof Tileset.Canvas) $.extend(this, self);
+		return self;
+	}
 	
 	return Tileset;
 })(jQuery);

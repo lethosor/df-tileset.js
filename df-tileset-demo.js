@@ -43,8 +43,8 @@ $(function(){
 		var canvas = $('<canvas>').prependTo('body').attr({
 			width: $('body').width(),
 			height: $('body').height() / 2
-			}),
-			cx = canvas[0].getContext('2d');
+			});
+		canvas = Tileset.Canvas(canvas, font);
 		Demo.log('Multiple color/caching demo (5 times)')
 		ch = Math.floor(Math.random() * 256);
 		Demo.log('Using character', ch);
@@ -53,8 +53,7 @@ $(function(){
 			Demo.logf('#' + i + ': ');
 			for (var r = 0; r < 256; r += 5) {
 				for (var g = 0; g < 256; g += 15) {
-					var d = font.characters[ch].image_data([255,255,255], [r,g,0]);
-					cx.putImageData(d, r/5*d.width, g/15*d.height);
+					canvas.draw_at(ch, [255, 255, 255], [r,g,0], g/15, r/5);
 				}
 			}
 			Demo.log('{green|Done} ('+ ((new Date()).getTime() - time), 'ms)');
