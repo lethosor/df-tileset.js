@@ -38,5 +38,8 @@ $(function(){
 			}
 			Demo.log(s);
 		}
+		ch1_bw = font.characters[1].image_data([255,255,255], [0,0,0]);
+		font.image_canvas.show();
+		font.image_context.putImageData(ch1_bw, 0, 0);
 	});
 });
