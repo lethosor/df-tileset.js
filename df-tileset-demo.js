@@ -14,32 +14,43 @@ Demo.init = function(){
 	Demo.log('Demo initialized.');
 }
 
-Demo.log = function(){
-	$('#demo-log div').html($('#demo-log div').html() + [].slice.apply(arguments).join(' ') + '\n');
+Demo.logf = function(){
+	$('#demo-log div').html($('#demo-log div').html() + [].slice.apply(arguments).join(' '));
 	$('#demo-log').scrollTop($('#demo-log').children().height());
+};
+Demo.log = function(){
+	var args = [].slice.apply(arguments);
+	args.push('\n');
+	Demo.logf.apply(this, args);
 };
 
 $(function(){
 	Demo.init();
 	$('#tileset').load(function(){
-		var d = (new Date()).getTime();
+		var time, otime;
+		otime = time = (new Date()).getTime();
 		font = Tileset.Font('#tileset');
-		Demo.log('Loaded in ' + ((new Date()).getTime() - d) + ' ms.\nFont:',
+		Demo.log('Font loaded in ' + ((new Date()).getTime() - time) + ' ms.\nFont:',
 				 font.characters.length, 'characters, background:',
 				 'rgba(' + font.characters[0].pixels[0][0].toString() + ')');
-		var ch = Math.floor(Math.random()*256);
-		Demo.log('Character', ch + ':');
-		var cp = font.characters[ch].pixels;
-		for (var r = 0; r < cp.length; r++) {
-			var s = '';
-			for (var c = 0; c < cp[r].length; c++) {
-				var color = 'rgba(' + cp[r][c].toString() + ')'
-				s += '<span style="background-color:'+color+'"> </span>'
+		var canvas = $('<canvas>').prependTo('body').attr({
+			width: $('body').width(),
+			height: $('body').height() / 2
+			}),
+			cx = canvas[0].getContext('2d');
+		Demo.log('Multiple color/caching demo (5 times)')
+		for (var i = 1; i <= 5; i++) {
+			time = (new Date()).getTime();
+			Demo.logf('#' + i + ': ');
+			for (var r = 0; r < 256; r += 5) {
+				for (var g = 0; g < 256; g += 15) {
+					var d = font.characters[1].image_data([255,255,255], [r,g,0]);
+					cx.putImageData(d, r/5*d.width, g/15*d.height);
+				}
 			}
-			Demo.log(s);
+			Demo.log('Done ('+ ((new Date()).getTime() - time), 'ms)');
 		}
-		ch1_bw = font.characters[1].image_data([255,255,255], [0,0,0]);
-		font.image_canvas.show();
-		font.image_context.putImageData(ch1_bw, 0, 0);
+		
+		Demo.log('Total time for all demos:', (new Date()).getTime() - otime, 'ms');
 	});
 });
