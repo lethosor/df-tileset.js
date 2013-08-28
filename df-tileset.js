@@ -133,10 +133,11 @@ window.Tileset = (function($){
 		};
 		
 		self.draw_char = function(ch, r, c, fg, bg) {
-			self.draw_string(self.parse_string(ch[0]), r, c, fg, bg);
+			self.draw_string(self.parse_string(ch)[0], r, c, fg, bg);
 		};
 		
 		self.fill_char = function(ch, coords, fg, bg) {
+			fg = self.get_fg(fg); bg = self.get_bg(bg);
 			
 		};
 		
