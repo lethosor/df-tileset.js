@@ -98,7 +98,7 @@ window.Tileset = (function($){
 			height: 'auto',
 			width: 'auto'
 		}).load(function(d){
-			var font = Tileset.Font($('img[src=' + url + ']'));
+			var font = Tileset.Font($('img').filter(function(){return $(this).attr('src') == url}));
 			event.trigger('ready', font);
 		}).error(function(d){
 			event.trigger('error', d)
