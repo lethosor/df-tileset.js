@@ -41,8 +41,8 @@ $(function(){
 				 font.characters.length, 'characters, background:',
 				 '{white|' + font_bg + '|' + font_bg + '}');
 		var canvas = $('<canvas>').prependTo('body').attr({
-			width: $('body').width(),
-			height: $('body').height() / 2
+			width: font.char_width * 80,
+			height: font.char_height * 25
 			});
 		Demo.canvas = canvas = Tileset.Canvas(canvas, font);
 		Demo.log('Multiple color/caching demo (5 times)')
