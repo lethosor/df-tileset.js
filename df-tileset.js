@@ -112,8 +112,12 @@ window.Tileset = (function($){
 		var cx = self.cx = self.canvas.getContext('2d')
 		
 		self.draw_at = function(ch_id, fg, bg, r, c) {
-			var d = font.characters[ch_id].image_data(fg, bg);
+			var d = font.characters[ch_id];
+			// Make sure the character exists
+			if (d) d = d.image_data(fg, bg);
+			else return false;
 			self.cx.putImageData(d, c * self.font.char_width, r * self.font.char_height);
+			return true;
 		};
 		
 		self.draw_list_at = function(chars, fg, bg, r, c) {
