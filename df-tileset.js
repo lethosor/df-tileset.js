@@ -1,5 +1,6 @@
 window.Tileset = (function($){
-	Tileset = {};
+	"use strict";
+	var Tileset = {};
 	
 	Tileset.Character = function(bg, data) {
 		var self = {
@@ -442,7 +443,7 @@ window.Tileset = (function($){
 	};	
 	// Reverse-lookup
 	Tileset.CP437_R = {};
-	for (i in Tileset.CP437) {
+	for (var i in Tileset.CP437) {
 		if (!(i in Tileset.CP437_R)) {
 			Tileset.CP437_R[Tileset.CP437[i]] = i;
 		}
