@@ -235,6 +235,13 @@ window.Tileset = (function($){
 			else self.focus(false);
 		});
 		
+		// backspace fix
+		self.events.bind('keydown', function(_, e){
+			if (e.keyCode == 8) {
+				e.preventDefault();
+			}
+		});
+		
 		if (this instanceof Tileset.Canvas) $.extend(this, self);
 		return self;
 	};
