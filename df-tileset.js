@@ -107,10 +107,13 @@ window.Tileset = (function($){
 		return event;
 	};
 	
-	Tileset.Canvas = function(canvas, font) {
+	Tileset.Canvas = function(canvas, font, opts) {
 		var self = {canvas: $(canvas)[0], $canvas: $(canvas), font: font};
 		canvas = self.canvas;
-		var cx = self.cx = self.canvas.getContext('2d')
+		var cx = self.cx = self.canvas.getContext('2d');
+		self.opts = opts = $.extend({
+			focus_enabled: true
+		}, opts);
 		
 		self.draw_at = function(ch_id, fg, bg, r, c) {
 			var d = font.characters[ch_id];
@@ -178,6 +181,31 @@ window.Tileset = (function($){
 		self.get_bg = function(c) {
 			return $.extend([0, 0, 0], c);
 		};
+		
+		var _focused = false;
+		self.focus = function(n) {
+			if (typeof n != 'undefined') {
+				if (opts.focus_enabled) {
+					_focused = Boolean(n);
+					if (_focused) {
+						self.$canvas.css('box-shadow','0px 0px 5px 2px #90f0f0')
+					}
+					else {
+						self.$canvas.css('box-shadow','none')
+					}
+					return true;
+				}
+				else return false;
+			}
+			else return _focused;
+		};
+		$('html').on('click', '*', function(e){
+			if ($(this).is(self.$canvas)) {
+				self.focus(true);
+				e.stopPropagation();
+			}
+			else self.focus(false);
+		});
 		
 		if (this instanceof Tileset.Canvas) $.extend(this, self);
 		return self;
