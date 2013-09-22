@@ -182,16 +182,44 @@ window.Tileset = (function($){
 			return $.extend([0, 0, 0], c);
 		};
 		
+		self.events = $({}); // event handler
 		var _focused = false;
+		/* Intercept body events when the canvas has focus
+		 * Events can have custom functionality bound to them by using:
+		 *     self.events.bind('event_type', function(event){...})
+		 * To avoid overriding browser settings, events are still propagated by
+		 * default. This can be changed by using 'event.preventDefault()' or
+		 * 'event.stopPropagation()' in the custom event handler (see above).
+		 */
+		var focus_event_handler = function(e) {
+			self.events.trigger(e.type, e);
+			// if event is already triggered on canvas (e.g. clicks), no need to propagate
+			if ($(e.target).is(self.$canvas)) {
+				e.stopPropagation();
+			}
+		};
+		// A list of events to intercept
+		focus_event_handler.events = 'mouseup mousedown click dblclick' +
+			'mousemove mousein mouseout mouseenter mouseleave' + 
+			'keyup keydown keypress scroll resize';
+		focus_event_handler.enable = function() {
+			$('body').on(focus_event_handler.events, focus_event_handler);
+		};
+		focus_event_handler.disable = function() {
+			$('body').off(focus_event_handler.events, focus_event_handler);
+		};
+		
 		self.focus = function(n) {
 			if (typeof n != 'undefined') {
 				if (opts.focus_enabled) {
 					_focused = Boolean(n);
 					if (_focused) {
-						self.$canvas.css('box-shadow','0px 0px 5px 2px #90f0f0')
+						self.$canvas.css('box-shadow', '0px 0px 5px 2px #90f0f0');
+						focus_event_handler.enable();
 					}
 					else {
-						self.$canvas.css('box-shadow','none')
+						self.$canvas.css('box-shadow', 'none');
+						focus_event_handler.disable();
 					}
 					return true;
 				}
@@ -202,7 +230,7 @@ window.Tileset = (function($){
 		$('html').on('click', '*', function(e){
 			if ($(this).is(self.$canvas)) {
 				self.focus(true);
-				e.stopPropagation();
+				e.stopPropagation(); // prevent propagated events from unfocusing
 			}
 			else self.focus(false);
 		});
