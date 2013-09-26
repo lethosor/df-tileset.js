@@ -203,10 +203,10 @@ window.Tileset = (function($){
 			'mousemove mousein mouseout mouseenter mouseleave' + 
 			'keyup keydown keypress scroll resize';
 		focus_event_handler.enable = function() {
-			$('body').on(focus_event_handler.events, focus_event_handler);
+			$(window).on(focus_event_handler.events, focus_event_handler);
 		};
 		focus_event_handler.disable = function() {
-			$('body').off(focus_event_handler.events, focus_event_handler);
+			$(window).off(focus_event_handler.events, focus_event_handler);
 		};
 		
 		self.focus = function(n) {
