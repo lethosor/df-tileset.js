@@ -63,7 +63,7 @@ $(function(){
 		Demo.canvas.draw_string(text + ' __________', 0, 0);
 		var r = 0, c = text.length + 1;
 		Demo.canvas.events.on('keypress', function(_, e) {
-			Demo.canvas.draw_string(String.fromCharCode(e.keyCode),r,c);
+			Demo.canvas.draw_string(String.fromCharCode(e.which),r,c);
 			c++;
 			if (c>=80) {c=0; r++}
 		});
