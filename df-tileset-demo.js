@@ -45,7 +45,7 @@ $(function(){
 			height: font.char_height * 25
 			});
 		Demo.canvas = canvas = Tileset.Canvas(canvas, font);
-		Demo.log('Multiple color/caching demo (5 times)')
+		Demo.log('Testing caching (multiple colors, 5x)')
 		ch = Math.floor(Math.random() * 256);
 		Demo.log('Using character', ch);
 		for (var i = 1; i <= 5; i++) {
@@ -68,6 +68,6 @@ $(function(){
 			if (c>=80) {c=0; r++}
 		});
 		
-		Demo.log('Total time for all demos:', (new Date()).getTime() - otime, 'ms');
+		Demo.log('Total time:', (new Date()).getTime() - otime, 'ms');
 	});
 });

@@ -209,11 +209,16 @@ window.Tileset = (function($){
 			$(window).off(focus_event_handler.events, focus_event_handler);
 		};
 		
-		self.focus = function(n) {
-			if (typeof n != 'undefined') {
+		self.focused = false;
+		self.focus = function(focus) {
+			if (typeof focus != 'undefined') {
 				if (opts.focus_enabled) {
-					_focused = Boolean(n);
-					if (_focused) {
+					focus = Boolean(focus);
+					if (focus) {
+						if (self.focused) {
+							// Don't attach if already focused!
+							return false;
+						}
 						self.$canvas.css('box-shadow', '0px 0px 5px 2px #90f0f0');
 						focus_event_handler.enable();
 					}
@@ -221,11 +226,12 @@ window.Tileset = (function($){
 						self.$canvas.css('box-shadow', 'none');
 						focus_event_handler.disable();
 					}
+					self.focused = focus;
 					return true;
 				}
 				else return false;
 			}
-			else return _focused;
+			else return self.focused;
 		};
 		$('html').on('click', '*', function(e){
 			if ($(this).is(self.$canvas)) {
