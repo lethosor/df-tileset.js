@@ -32,6 +32,7 @@ Demo.log = function(){
 
 $(function(){
 	Demo.init();
+	Demo.log('User agent: ' + window.navigator.userAgent);
 	$('#tileset').load(function(){
 		var time, otime;
 		otime = time = (new Date()).getTime();
@@ -45,6 +46,7 @@ $(function(){
 			height: font.char_height * 25
 			});
 		Demo.canvas = canvas = Tileset.Canvas(canvas, font);
+		Demo.canvas.$canvas.css('box-shadow', '0px 0px 2px 2px #afa');
 		Demo.log('Testing caching (multiple colors, 5x)')
 		ch = Math.floor(Math.random() * 256);
 		Demo.log('Using character', ch);

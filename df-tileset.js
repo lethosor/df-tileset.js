@@ -108,12 +108,18 @@ window.Tileset = (function($){
 	};
 	
 	Tileset.Canvas = function(canvas, font, opts) {
-		var self = {canvas: $(canvas)[0], $canvas: $(canvas), font: font};
+		var self = {
+			canvas: $(canvas)[0],
+			$canvas: $(canvas),
+			font: font,
+		};
 		canvas = self.canvas;
 		var cx = self.cx = self.canvas.getContext('2d');
 		self.opts = opts = $.extend({
 			focus_enabled: true
 		}, opts);
+		self.wrapper = $('<div class="canvas-wrapper">').css({position:'relative'});
+		self.$canvas.wrap(self.wrapper);
 		
 		self.draw_at = function(ch_id, fg, bg, r, c) {
 			var d = font.characters[ch_id];
@@ -184,68 +190,42 @@ window.Tileset = (function($){
 		
 		self.events = $({}); // event handler
 		var _focused = false;
-		/* Intercept body events when the canvas has focus
-		 * Events can have custom functionality bound to them by using:
-		 *     self.events.bind('event_type', function(event){...})
-		 * To avoid overriding browser settings, events are still propagated by
-		 * default. This can be changed by using 'event.preventDefault()' or
-		 * 'event.stopPropagation()' in the custom event handler (see above).
-		 */
+		self.focus_mask = $('<textarea>').insertAfter(self.$canvas).css({
+			color:'transparent',
+			'background-color': 'transparent',
+			resize: 'none',
+			border: 'none',
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			padding: 0,
+			margin: 0,
+		});
+		self.focus_mask.focus(function(){
+			self.$canvas.data('box-shadow', self.$canvas.css('box-shadow'))
+				.css('box-shadow', '0px 0px 5px 2px #90f0f0');
+		}).blur(function(){
+			self.$canvas.css('box-shadow', self.$canvas.data('box-shadow'));
+		});
+		
 		var focus_event_handler = function(e) {
 			self.events.trigger(e.type, e);
-			// if event is already triggered on canvas (e.g. clicks), no need to propagate
-			if ($(e.target).is(self.$canvas)) {
-				e.stopPropagation();
-			}
+			self.focus_mask.val('');
 		};
 		// A list of events to intercept
 		focus_event_handler.events = 'mouseup mousedown click dblclick' +
 			'mousemove mousein mouseout mouseenter mouseleave' + 
 			'keyup keydown keypress scroll resize';
-		focus_event_handler.enable = function() {
-			$(window).on(focus_event_handler.events, focus_event_handler);
-		};
-		focus_event_handler.disable = function() {
-			$(window).off(focus_event_handler.events, focus_event_handler);
-		};
+		self.focus_mask.on(focus_event_handler.events, focus_event_handler);
 		
-		self.focus = function(focus) {
-			if (typeof focus != 'undefined') {
-				if (opts.focus_enabled) {
-					focus = Boolean(focus);
-					if (focus) {
-						if (_focused) {
-							// Don't attach if already focused!
-							return false;
-						}
-						self.$canvas.css('box-shadow', '0px 0px 5px 2px #90f0f0');
-						focus_event_handler.enable();
-					}
-					else {
-						self.$canvas.css('box-shadow', 'none');
-						focus_event_handler.disable();
-					}
-					_focused = focus;
-					return true;
-				}
-				else return false;
-			}
-			else return _focused;
+		self.update_size = function() {
+			// Update size of wrapper and focus mask when canvas size changes
+			self.wrapper.add(self.focus_mask).css({
+				width: self.$canvas.width(),
+				height: self.$canvas.height(),
+			});
 		};
-		$('html').on('click', '*', function(e){
-			if ($(this).is(self.$canvas)) {
-				self.focus(true);
-				e.stopPropagation(); // prevent propagated events from unfocusing
-			}
-			else self.focus(false);
-		});
-		
-		// backspace fix
-		self.events.bind('keydown', function(_, e){
-			if (e.keyCode == 8) {
-				e.preventDefault();
-			}
-		});
+		self.update_size();  // Initialize size
 		
 		if (this instanceof Tileset.Canvas) $.extend(this, self);
 		return self;
