@@ -1,3 +1,16 @@
+Math.randInt = function(a, b, count) {
+	if (!count) count = 1;
+	count = Math.max(1, count);
+	if (count == 1) return Math.floor(Math.random() * (Math.abs(a - b) + 1)) + Math.min(a, b);
+	else {
+		var list = [];
+		for (var i = 0; i < count; i++) {
+			list[i] = Math.randInt(a, b);
+		}
+		return list;
+	}
+};
+
 window.Tileset = (function($){
 	"use strict";
 	var Tileset = {};
@@ -191,9 +204,10 @@ window.Tileset = (function($){
 		self.events = $({}); // event handler
 		var _focused = false;
 		self.focus_mask = $('<textarea>').insertAfter(self.$canvas).css({
-			color:'transparent',
+			color: 'transparent',
 			'background-color': 'transparent',
 			resize: 'none',
+			outline: 'none',
 			border: 'none',
 			position: 'absolute',
 			top: 0,
@@ -210,7 +224,7 @@ window.Tileset = (function($){
 		
 		var focus_event_handler = function(e) {
 			self.events.trigger(e.type, e);
-			self.focus_mask.val('');
+			setTimeout(function(){self.focus_mask.val('');},0);
 		};
 		// A list of events to intercept
 		focus_event_handler.events = 'mouseup mousedown click dblclick' +
