@@ -47,6 +47,7 @@ $(function(){
 			});
 		Demo.canvas = canvas = Tileset.Canvas(canvas, font);
 		Demo.canvas.$canvas.css('box-shadow', '0px 0px 2px 2px #afa');
+		Demo.canvas.fill_char(0, [0,0,24,79]);
 		Demo.log('Testing caching (multiple colors, 5x)')
 		ch = Math.floor(Math.random() * 256);
 		Demo.log('Using character', ch);
@@ -55,17 +56,16 @@ $(function(){
 			Demo.logf('#' + i + ': ');
 			for (var r = 0; r < 256; r += 5) {
 				for (var g = 0; g < 256; g += 15) {
-					canvas.draw_at(ch, [255, 255, 255], [r,g,0], g/15, r/5);
+					canvas.draw_at(ch, [255, 255, 255], [r,g,0], g/15 + 7, r/5 + 28);
 				}
 			}
 			Demo.log('{green|Done} ('+ ((new Date()).getTime() - time), 'ms)');
 		}
-		Demo.canvas.fill_char(0, [0,0,24,79]);
 		var text = 'Type text here (click to focus first):';
 		Demo.canvas.draw_string(text + ' __________', 0, 0);
 		var r = 0, c = text.length + 1;
 		Demo.canvas.events.on('keypress', function(_, e) {
-			Demo.canvas.draw_string(String.fromCharCode(e.which),r,c);
+			Demo.canvas.draw_string(String.fromCharCode(e.which), r, c, Math.randInt(200, 255, 3));
 			c++;
 			if (c>=80) {c=0; r++}
 		});
