@@ -69,7 +69,7 @@ $(function(){
 			c++;
 			if (c>=80) {c=0; r++}
 		});
-		
+
 		Demo.log('Total time:', (new Date()).getTime() - otime, 'ms');
 	});
 });

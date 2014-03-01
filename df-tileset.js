@@ -14,14 +14,14 @@ Math.randInt = function(a, b, count) {
 window.Tileset = (function($){
 	"use strict";
 	var Tileset = {};
-	
+
 	Tileset.Character = function(bg, data) {
 		var self = {
 			bg: [].slice.apply(bg),
 			img_data: data,
 			raw_data: [].slice.apply(data.data)
 		};
-		
+
 		self.pixels = [];
 		self.map = [];
 		for (var r = 0; r < data.height; r++) {
@@ -42,7 +42,7 @@ window.Tileset = (function($){
 		
 		self.blank_canvas = $('<canvas>').width(data.width).height(data.height).hide().appendTo('body');
 		self.image_data_cache = {};
-		
+
 		self.image_data = function(fg, bg){
 			/*
 			 * Returns an ImageData object with this character drawn on it,
@@ -65,21 +65,21 @@ window.Tileset = (function($){
 						}
 					}
 				}
-				
+
 				cx.putImageData(pixels, 0, 0);
-				
+
 				self.image_data_cache[key] = pixels;
 				return self.image_data_cache[key];
 			}
 		};
-		
+
 		if (this instanceof Tileset.Character) $.extend(this, self);
 		return self;
 	};
-	
+
 	Tileset.Font = function(image) {
 		var self = {};
-		
+
 		self.image = $(image).first().hide().attr({height: 'auto', width: 'auto'});
 		self.image_width = self.image.width();
 		self.image_height = self.image.height();
@@ -90,9 +90,9 @@ window.Tileset = (function($){
 		var ctx = self.image_context = self.image_canvas[0].getContext('2d');
 		// Draw image onto image_canvas
 		ctx.drawImage(self.image[0], 0, 0, self.image_width, self.image_height);
-		
+
 		self.characters = [];
-		
+
 		var background = ctx.getImageData(0, 0, 1, 1).data;
 		var w = self.char_width = self.image_width / 16,
 			h = self.char_height = self.image_height / 16;
@@ -102,7 +102,7 @@ window.Tileset = (function($){
 				self.characters[row * 16 + col] = Tileset.Character(background, data);
 			}
 		}
-		
+
 		if (this instanceof Tileset.Font) $.extend(this, self);
 		return self;
 	};
@@ -119,7 +119,7 @@ window.Tileset = (function($){
 		});
 		return event;
 	};
-	
+
 	Tileset.Canvas = function(canvas, font, opts) {
 		var self = {
 			canvas: $(canvas)[0],
@@ -133,7 +133,7 @@ window.Tileset = (function($){
 		}, opts);
 		self.wrapper = $('<div class="canvas-wrapper">').css({position:'relative'});
 		self.$canvas.wrap(self.wrapper);
-		
+
 		self.draw_at = function(ch_id, fg, bg, r, c) {
 			var d = font.characters[ch_id];
 			// Make sure the character exists
@@ -142,13 +142,13 @@ window.Tileset = (function($){
 			self.cx.putImageData(d, c * self.font.char_width, r * self.font.char_height);
 			return true;
 		};
-		
+
 		self.draw_list_at = function(chars, fg, bg, r, c) {
 			for (var i = 0; i < chars.length; i++) {
 				self.draw_at(chars[i], fg, bg, r, c + i);
 			}
 		};
-		
+
 		self.draw_string = function(string, r, c, fg, bg) {
 			fg = self.get_fg(fg); bg = self.get_bg(bg);
 			string = self.parse_string(string);
@@ -158,11 +158,11 @@ window.Tileset = (function($){
 			}
 			self.draw_list_at(chars, fg, bg, r, c);
 		};
-		
+
 		self.draw_char = function(ch, r, c, fg, bg) {
 			self.draw_string(self.parse_string(ch)[0], r, c, fg, bg);
 		};
-		
+
 		self.fill_char = function(ch, coords, fg, bg) {
 			fg = self.get_fg(fg); bg = self.get_bg(bg);
 			if (typeof ch == 'string') {
@@ -181,7 +181,7 @@ window.Tileset = (function($){
 				}
 			}
 		};
-		
+
 		self.parse_string = function(s) {
 			return s.replace(/#\{([\d,|/]+)\}/g, function(match, nums){
 				nums = nums.split(/,|\||\//);
@@ -192,15 +192,15 @@ window.Tileset = (function($){
 				return s;
 			});
 		};
-		
+
 		self.get_fg = function(c) {
 			return $.extend([255, 255, 255], c);
 		};
-		
+
 		self.get_bg = function(c) {
 			return $.extend([0, 0, 0], c);
 		};
-		
+
 		self.events = $({}); // event handler
 		var _focused = false;
 		self.focus_mask = $('<textarea>').insertAfter(self.$canvas).css({
@@ -221,17 +221,17 @@ window.Tileset = (function($){
 		}).blur(function(){
 			self.$canvas.css('box-shadow', self.$canvas.data('box-shadow'));
 		});
-		
+
 		var focus_event_handler = function(e) {
 			self.events.trigger(e.type, e);
 			setTimeout(function(){self.focus_mask.val('');},0);
 		};
 		// A list of events to intercept
 		focus_event_handler.events = 'mouseup mousedown click dblclick' +
-			'mousemove mousein mouseout mouseenter mouseleave' + 
+			'mousemove mousein mouseout mouseenter mouseleave' +
 			'keyup keydown keypress scroll resize';
 		self.focus_mask.on(focus_event_handler.events, focus_event_handler);
-		
+
 		self.update_size = function() {
 			// Update size of wrapper and focus mask when canvas size changes
 			self.wrapper.add(self.focus_mask).css({
@@ -240,11 +240,11 @@ window.Tileset = (function($){
 			});
 		};
 		self.update_size();  // Initialize size
-		
+
 		if (this instanceof Tileset.Canvas) $.extend(this, self);
 		return self;
 	};
-	
+
 	Tileset.CP437 = {
 		"0":"\u0000",
 		"1":"\u263A",
@@ -502,7 +502,7 @@ window.Tileset = (function($){
 		"253":"\u00B2",
 		"254":"\u25A0",
 		"255":"\u00A0",
-	};	
+	};
 	// Reverse-lookup
 	Tileset.CP437_R = {};
 	for (var i in Tileset.CP437) {
@@ -510,6 +510,6 @@ window.Tileset = (function($){
 			Tileset.CP437_R[Tileset.CP437[i]] = i;
 		}
 	}
-	
+
 	return Tileset;
 })(jQuery);
