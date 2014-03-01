@@ -1,14 +1,27 @@
+Math.randInt = function(a, b, count) {
+	if (!count) count = 1;
+	count = Math.max(1, count);
+	if (count == 1) return Math.floor(Math.random() * (Math.abs(a - b) + 1)) + Math.min(a, b);
+	else {
+		var list = [];
+		for (var i = 0; i < count; i++) {
+			list[i] = Math.randInt(a, b);
+		}
+		return list;
+	}
+};
+
 window.Tileset = (function($){
 	"use strict";
 	var Tileset = {};
-	
+
 	Tileset.Character = function(bg, data) {
 		var self = {
 			bg: [].slice.apply(bg),
 			img_data: data,
 			raw_data: [].slice.apply(data.data)
 		};
-		
+
 		self.pixels = [];
 		self.map = [];
 		for (var r = 0; r < data.height; r++) {
@@ -29,7 +42,7 @@ window.Tileset = (function($){
 		
 		self.blank_canvas = $('<canvas>').width(data.width).height(data.height).hide().appendTo('body');
 		self.image_data_cache = {};
-		
+
 		self.image_data = function(fg, bg){
 			/*
 			 * Returns an ImageData object with this character drawn on it,
@@ -52,21 +65,21 @@ window.Tileset = (function($){
 						}
 					}
 				}
-				
+
 				cx.putImageData(pixels, 0, 0);
-				
+
 				self.image_data_cache[key] = pixels;
 				return self.image_data_cache[key];
 			}
 		};
-		
+
 		if (this instanceof Tileset.Character) $.extend(this, self);
 		return self;
 	};
-	
+
 	Tileset.Font = function(image) {
 		var self = {};
-		
+
 		self.image = $(image).first().hide().attr({height: 'auto', width: 'auto'});
 		self.image_width = self.image.width();
 		self.image_height = self.image.height();
@@ -77,9 +90,9 @@ window.Tileset = (function($){
 		var ctx = self.image_context = self.image_canvas[0].getContext('2d');
 		// Draw image onto image_canvas
 		ctx.drawImage(self.image[0], 0, 0, self.image_width, self.image_height);
-		
+
 		self.characters = [];
-		
+
 		var background = ctx.getImageData(0, 0, 1, 1).data;
 		var w = self.char_width = self.image_width / 16,
 			h = self.char_height = self.image_height / 16;
@@ -89,7 +102,7 @@ window.Tileset = (function($){
 				self.characters[row * 16 + col] = Tileset.Character(background, data);
 			}
 		}
-		
+
 		if (this instanceof Tileset.Font) $.extend(this, self);
 		return self;
 	};
@@ -106,15 +119,21 @@ window.Tileset = (function($){
 		});
 		return event;
 	};
-	
+
 	Tileset.Canvas = function(canvas, font, opts) {
-		var self = {canvas: $(canvas)[0], $canvas: $(canvas), font: font};
+		var self = {
+			canvas: $(canvas)[0],
+			$canvas: $(canvas),
+			font: font,
+		};
 		canvas = self.canvas;
 		var cx = self.cx = self.canvas.getContext('2d');
 		self.opts = opts = $.extend({
 			focus_enabled: true
 		}, opts);
-		
+		self.wrapper = $('<div class="canvas-wrapper">').css({position:'relative'});
+		self.$canvas.wrap(self.wrapper);
+
 		self.draw_at = function(ch_id, fg, bg, r, c) {
 			var d = font.characters[ch_id];
 			// Make sure the character exists
@@ -123,13 +142,13 @@ window.Tileset = (function($){
 			self.cx.putImageData(d, c * self.font.char_width, r * self.font.char_height);
 			return true;
 		};
-		
+
 		self.draw_list_at = function(chars, fg, bg, r, c) {
 			for (var i = 0; i < chars.length; i++) {
 				self.draw_at(chars[i], fg, bg, r, c + i);
 			}
 		};
-		
+
 		self.draw_string = function(string, r, c, fg, bg) {
 			fg = self.get_fg(fg); bg = self.get_bg(bg);
 			string = self.parse_string(string);
@@ -139,11 +158,11 @@ window.Tileset = (function($){
 			}
 			self.draw_list_at(chars, fg, bg, r, c);
 		};
-		
+
 		self.draw_char = function(ch, r, c, fg, bg) {
 			self.draw_string(self.parse_string(ch)[0], r, c, fg, bg);
 		};
-		
+
 		self.fill_char = function(ch, coords, fg, bg) {
 			fg = self.get_fg(fg); bg = self.get_bg(bg);
 			if (typeof ch == 'string') {
@@ -162,7 +181,7 @@ window.Tileset = (function($){
 				}
 			}
 		};
-		
+
 		self.parse_string = function(s) {
 			return s.replace(/#\{([\d,|/]+)\}/g, function(match, nums){
 				nums = nums.split(/,|\||\//);
@@ -173,84 +192,59 @@ window.Tileset = (function($){
 				return s;
 			});
 		};
-		
+
 		self.get_fg = function(c) {
 			return $.extend([255, 255, 255], c);
 		};
-		
+
 		self.get_bg = function(c) {
 			return $.extend([0, 0, 0], c);
 		};
-		
+
 		self.events = $({}); // event handler
 		var _focused = false;
-		/* Intercept body events when the canvas has focus
-		 * Events can have custom functionality bound to them by using:
-		 *     self.events.bind('event_type', function(event){...})
-		 * To avoid overriding browser settings, events are still propagated by
-		 * default. This can be changed by using 'event.preventDefault()' or
-		 * 'event.stopPropagation()' in the custom event handler (see above).
-		 */
+		self.focus_mask = $('<textarea>').insertAfter(self.$canvas).css({
+			color: 'transparent',
+			'background-color': 'transparent',
+			resize: 'none',
+			outline: 'none',
+			border: 'none',
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			padding: 0,
+			margin: 0,
+		});
+		self.focus_mask.focus(function(){
+			self.$canvas.data('box-shadow', self.$canvas.css('box-shadow'))
+				.css('box-shadow', '0px 0px 5px 2px #90f0f0');
+		}).blur(function(){
+			self.$canvas.css('box-shadow', self.$canvas.data('box-shadow'));
+		});
+
 		var focus_event_handler = function(e) {
 			self.events.trigger(e.type, e);
-			// if event is already triggered on canvas (e.g. clicks), no need to propagate
-			if ($(e.target).is(self.$canvas)) {
-				e.stopPropagation();
-			}
+			setTimeout(function(){self.focus_mask.val('');},0);
 		};
 		// A list of events to intercept
 		focus_event_handler.events = 'mouseup mousedown click dblclick' +
-			'mousemove mousein mouseout mouseenter mouseleave' + 
+			'mousemove mousein mouseout mouseenter mouseleave' +
 			'keyup keydown keypress scroll resize';
-		focus_event_handler.enable = function() {
-			$(window).on(focus_event_handler.events, focus_event_handler);
+		self.focus_mask.on(focus_event_handler.events, focus_event_handler);
+
+		self.update_size = function() {
+			// Update size of wrapper and focus mask when canvas size changes
+			self.wrapper.add(self.focus_mask).css({
+				width: self.$canvas.width(),
+				height: self.$canvas.height(),
+			});
 		};
-		focus_event_handler.disable = function() {
-			$(window).off(focus_event_handler.events, focus_event_handler);
-		};
-		
-		self.focus = function(focus) {
-			if (typeof focus != 'undefined') {
-				if (opts.focus_enabled) {
-					focus = Boolean(focus);
-					if (focus) {
-						if (_focused) {
-							// Don't attach if already focused!
-							return false;
-						}
-						self.$canvas.css('box-shadow', '0px 0px 5px 2px #90f0f0');
-						focus_event_handler.enable();
-					}
-					else {
-						self.$canvas.css('box-shadow', 'none');
-						focus_event_handler.disable();
-					}
-					_focused = focus;
-					return true;
-				}
-				else return false;
-			}
-			else return _focused;
-		};
-		$('html').on('click', '*', function(e){
-			if ($(this).is(self.$canvas)) {
-				self.focus(true);
-				e.stopPropagation(); // prevent propagated events from unfocusing
-			}
-			else self.focus(false);
-		});
-		
-		// backspace fix
-		self.events.bind('keydown', function(_, e){
-			if (e.keyCode == 8) {
-				e.preventDefault();
-			}
-		});
-		
+		self.update_size();  // Initialize size
+
 		if (this instanceof Tileset.Canvas) $.extend(this, self);
 		return self;
 	};
-	
+
 	Tileset.CP437 = {
 		"0":"\u0000",
 		"1":"\u263A",
@@ -508,7 +502,7 @@ window.Tileset = (function($){
 		"253":"\u00B2",
 		"254":"\u25A0",
 		"255":"\u00A0",
-	};	
+	};
 	// Reverse-lookup
 	Tileset.CP437_R = {};
 	for (var i in Tileset.CP437) {
@@ -516,6 +510,6 @@ window.Tileset = (function($){
 			Tileset.CP437_R[Tileset.CP437[i]] = i;
 		}
 	}
-	
+
 	return Tileset;
 })(jQuery);
