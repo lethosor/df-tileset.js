@@ -15,61 +15,32 @@ window.Tileset = (function($){
 	"use strict";
 	var Tileset = {};
 
-	Tileset.Character = function(bg, data) {
-		var self = {
-			bg: [].slice.apply(bg),
-			img_data: data,
-			raw_data: [].slice.apply(data.data)
-		};
-
-		self.pixels = [];
-		self.map = [];
-		for (var r = 0; r < data.height; r++) {
-			self.pixels[r] = [];
-			self.map[r] = [];
-			for (var c = 0; c < data.width; c++) {
-				var offset = (data.width*r + c) * 4
-				self.pixels[r][c] = self.raw_data.slice(offset, offset + 4);
-				if (self.pixels[r][c].toString() == self.bg.toString()) {
-					// This is the background color, so transparency = 0
-					self.map[r][c] = 0;
-				}
-				else {
-					self.map[r][c] = 1;
-				}
+	Tileset.Character = function(raw) {
+		var self = {};
+		self.raw = raw;
+		var w = raw.width, h = raw.height, data = raw.data;
+		for (var x = 0; x < w; x++) {
+			for (var y = 0; y < h; y++) {
+				var off = (x + (y * w)) * 4;
+				if (data[off] == 255 && data[off + 1] == 0 && data[off + 2] == 255 && data[off + 3] == 255)
+					data[off] = data[off + 1] = data[off + 2] = data[off + 3] = 0;
 			}
 		}
-		
-		self.blank_canvas = $('<canvas>').width(data.width).height(data.height).hide().appendTo('body');
-		self.image_data_cache = {};
-
-		self.image_data = function(fg, bg){
-			/*
-			 * Returns an ImageData object with this character drawn on it,
-			 * with foreground 'fg' and background 'bg'.
-			 * fg/bg: [r, g, b (, a)]
-			 */
-			var key = fg.toString() + ',' + bg.toString();
-			if (key in self.image_data_cache) {
-				return self.image_data_cache[key];
-			}
-			else {
-				var w = self.img_data.width, h = self.img_data.height,
-					cx = self.blank_canvas[0].getContext('2d'),
-					pixels = cx.createImageData(w, h);
-				for (var r = 0; r < self.img_data.height; r++) {
-					for (var c = 0; c < self.img_data.width; c++) {
-						var color = self.map[r][c] ? fg : bg;
-						for (var i = 0; i <= 3; i++) {
-							pixels.data[(r * w + c) * 4 + i] = i in color ? color[i] : 255;
-						}
-					}
+		self.draw_to = function(dest, fg, bg){
+			// Draws to 'dest', an ImageData object
+			var x, y, off, r, g, b, a;
+			for (x = 0; x < w; x++) {
+				for (y = 0; y < h; y++) {
+					off = (x + (y * w)) * 4;
+					r = data[off];
+					g = data[off + 1];
+					b = data[off + 2];
+					a = data[off + 3];
+					dest.data[off]     = (r * a * fg[0] / 255 + (255 - a) * bg[0]) / 255;
+					dest.data[off + 1] = (g * a * fg[1] / 255 + (255 - a) * bg[1]) / 255;
+					dest.data[off + 2] = (b * a * fg[2] / 255 + (255 - a) * bg[2]) / 255;
+					dest.data[off + 3] = 255;
 				}
-
-				cx.putImageData(pixels, 0, 0);
-
-				self.image_data_cache[key] = pixels;
-				return self.image_data_cache[key];
 			}
 		};
 
@@ -93,13 +64,13 @@ window.Tileset = (function($){
 
 		self.characters = [];
 
-		var background = ctx.getImageData(0, 0, 1, 1).data;
 		var w = self.char_width = self.image_width / 16,
 			h = self.char_height = self.image_height / 16;
 		for (var row = 0; row < 16; row++) {
 			for (var col = 0; col < 16; col++) {
-				var data = ctx.getImageData(w * col, h * row, w, h);
-				self.characters[row * 16 + col] = Tileset.Character(background, data);
+				self.characters[row * 16 + col] = Tileset.Character(
+					ctx.getImageData(w * col, h * row, w, h)
+				);
 			}
 		}
 
@@ -128,6 +99,7 @@ window.Tileset = (function($){
 		};
 		canvas = self.canvas;
 		var cx = self.cx = self.canvas.getContext('2d');
+		var imageData = cx.createImageData(self.font.char_width, self.font.char_height);
 		self.opts = opts = $.extend({
 			focus_enabled: true
 		}, opts);
@@ -137,9 +109,9 @@ window.Tileset = (function($){
 		self.draw_at = function(ch_id, fg, bg, r, c) {
 			var d = font.characters[ch_id];
 			// Make sure the character exists
-			if (d) d = d.image_data(fg, bg);
-			else return false;
-			self.cx.putImageData(d, c * self.font.char_width, r * self.font.char_height);
+			if (!d) return false;
+			d.draw_to(imageData, fg, bg);
+			self.cx.putImageData(imageData, c * self.font.char_width, r * self.font.char_height);
 			return true;
 		};
 

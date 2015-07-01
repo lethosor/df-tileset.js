@@ -37,18 +37,15 @@ $(function(){
 		var time, otime;
 		otime = time = (new Date()).getTime();
 		font = Tileset.Font('#tileset');
-		var font_bg = 'rgba(' + font.characters[0].pixels[0][0].toString() + ')';
-		Demo.log('Font loaded in ' + ((new Date()).getTime() - time) + ' ms.\nFont:',
-				 font.characters.length, 'characters, background:',
-				 '{white|' + font_bg + '|' + font_bg + '}');
+		Demo.log('Font loaded in', ((new Date()).getTime() - time), 'ms:',
+				 font.characters.length, 'characters');
 		var canvas = $('<canvas>').prependTo('body').attr({
 			width: font.char_width * 80,
 			height: font.char_height * 25
-			});
+		});
 		Demo.canvas = canvas = Tileset.Canvas(canvas, font);
 		Demo.canvas.$canvas.css('box-shadow', '0px 0px 2px 2px #afa');
 		Demo.canvas.fill_char(0, [0,0,24,79]);
-		Demo.log('Testing caching (multiple colors, 5x)')
 		ch = Math.floor(Math.random() * 256);
 		Demo.log('Using character', ch);
 		for (var i = 1; i <= 5; i++) {
