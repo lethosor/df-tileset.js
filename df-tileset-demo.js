@@ -69,6 +69,9 @@ $(function(){
 			c++;
 			if (c>=80) {c=0; r++}
 		});
+		Demo.canvas.events.on('all', function(_, e) {
+			Demo.canvas.draw_string(e.type + '         ', 20, 0, Math.randInt(100, 255, 3));
+		});
 
 		Demo.log('Total time:', Demo.time() - otime, 'ms');
 	});

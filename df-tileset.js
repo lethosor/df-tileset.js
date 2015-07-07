@@ -195,7 +195,8 @@ window.Tileset = (function($){
 
 		var focus_event_handler = function(e) {
 			self.events.trigger(e.type, e);
-			self.focus_mask.val('');
+			self.events.trigger('all', e);
+			setTimeout(function() {self.focus_mask.val('');}, 0);
 		};
 		// A list of events to intercept
 		focus_event_handler.events = 'mouseup mousedown click dblclick' +
