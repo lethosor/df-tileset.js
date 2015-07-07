@@ -174,7 +174,6 @@ window.Tileset = (function($){
 		};
 
 		self.events = $({}); // event handler
-		var _focused = false;
 		self.focus_mask = $('<textarea>').insertAfter(self.$canvas).css({
 			color: 'transparent',
 			'background-color': 'transparent',
@@ -196,7 +195,7 @@ window.Tileset = (function($){
 
 		var focus_event_handler = function(e) {
 			self.events.trigger(e.type, e);
-			setTimeout(function(){self.focus_mask.val('');},0);
+			self.focus_mask.val('');
 		};
 		// A list of events to intercept
 		focus_event_handler.events = 'mouseup mousedown click dblclick' +

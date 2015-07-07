@@ -29,15 +29,18 @@ Demo.log = function(){
 	args.push('\n');
 	Demo.logf.apply(this, args);
 };
+Demo.time = (window.performance && performance.now)
+	? function() { return performance.now(); }
+	: function() { return (new Date()).getTime(); };
 
 $(function(){
 	Demo.init();
 	Demo.log('User agent: ' + window.navigator.userAgent);
 	$('#tileset').load(function(){
 		var time, otime;
-		otime = time = (new Date()).getTime();
+		otime = time = Demo.time();
 		font = Tileset.Font('#tileset');
-		Demo.log('Font loaded in', ((new Date()).getTime() - time), 'ms:',
+		Demo.log('Font loaded in', (Demo.time() - time), 'ms:',
 				 font.characters.length, 'characters');
 		var canvas = $('<canvas>').prependTo('body').attr({
 			width: font.char_width * 80,
@@ -49,14 +52,14 @@ $(function(){
 		ch = Math.floor(Math.random() * 256);
 		Demo.log('Using character', ch);
 		for (var i = 1; i <= 5; i++) {
-			time = (new Date()).getTime();
+			time = Demo.time();
 			Demo.logf('#' + i + ': ');
 			for (var r = 0; r < 256; r += 5) {
 				for (var g = 0; g < 256; g += 15) {
 					canvas.draw_at(ch, [255, 255, 255], [r,g,0], g/15 + 7, r/5 + 28);
 				}
 			}
-			Demo.log('{green|Done} ('+ ((new Date()).getTime() - time), 'ms)');
+			Demo.log('{green|Done} ('+ (Demo.time() - time), 'ms)');
 		}
 		var text = 'Type text here (click to focus first):';
 		Demo.canvas.draw_string(text + ' __________', 0, 0);
@@ -67,6 +70,6 @@ $(function(){
 			if (c>=80) {c=0; r++}
 		});
 
-		Demo.log('Total time:', (new Date()).getTime() - otime, 'ms');
+		Demo.log('Total time:', Demo.time() - otime, 'ms');
 	});
 });
