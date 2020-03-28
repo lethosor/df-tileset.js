@@ -180,6 +180,7 @@ window.Tileset = (function($){
 			resize: 'none',
 			outline: 'none',
 			border: 'none',
+			overflow: 'hidden',
 			position: 'absolute',
 			top: 0,
 			left: 0,
